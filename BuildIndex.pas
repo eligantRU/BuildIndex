@@ -1,6 +1,8 @@
 PROGRAM BuildIndex(INPUT, OUTPUT); 
 CONST
-  AllowedCharSet = ['a'..'z', 'A'..'Z', 'à'..'ÿ', 'À'..'ß', '¸', '¨', '''', '-']; 
+  OrthographyCharSet = ['''', '-'];
+  AlphabetCharSet = ['a'..'z', 'A'..'Z', 'à'..'ÿ', 'À'..'ß', '¸', '¨'];
+  AllowedCharSet = AlphabetCharSet + OrthographyCharSet; 
 TYPE 
   Tree = ^NodeType;
   NodeType = RECORD
@@ -63,23 +65,85 @@ BEGIN { SkipGarbage }
     END  
 END; { SkipGarbage }
 
-FUNCTION GetWord(VAR Fin: TEXT): STRING;  
+FUNCTION CorrectLexem(VAR Lexem: STRING): STRING;
+VAR
+  StartLexemPosition, EndLexemPosition: INTEGER;
+
+FUNCTION GetStartLexemPosition(Lexem: STRING): INTEGER;
+VAR
+  i: INTEGER;
+BEGIN { GetStartLexemPosition }   
+  GetStartLexemPosition := 0;   
+  IF LENGTH(Lexem) > 0
+  THEN   
+    BEGIN
+      FOR i := 1 TO LENGTH(Lexem)
+      DO
+        IF (Lexem[i] IN AlphabetCharSet)
+        THEN
+          BREAK;
+      GetStartLexemPosition := i 
+    END      
+END; { GetStartLexemPosition }   
+
+FUNCTION GetEndLexemPosition(Lexem: STRING): INTEGER;
+VAR
+  i: INTEGER;
+BEGIN { GetEndLexemPosition }  
+  GetEndLexemPosition := 0;
+  IF LENGTH(Lexem) > 0
+  THEN   
+    BEGIN
+      FOR i := LENGTH(Lexem) DOWNTO 1
+      DO
+        IF (Lexem[i] IN AlphabetCharSet)
+        THEN
+          BREAK;
+      GetEndLexemPosition := i
+    END      
+END; { GetEndLexemPosition } 
+
+FUNCTION Trim(Lexem: STRING; StartPosition, EndPosition: INTEGER): STRING;
+VAR
+  i: INTEGER;
+  NewLexem: STRING;
+BEGIN { Trim }
+  Trim := '';
+  NewLexem := '';
+  
+  IF (LENGTH(Lexem) > 0) AND NOT((LENGTH(Lexem) = 1) AND (Lexem[1] IN OrthographyCharSet))
+  THEN
+    BEGIN
+      FOR i := StartPosition TO EndPosition
+      DO   
+        NewLexem := NewLexem + Lexem[i];
+      Trim := NewLexem
+    END      
+END; { Trim }
+  
+BEGIN { CorrectLexem }
+  StartLexemPosition := GetStartLexemPosition(Lexem);
+  EndLexemPosition := GetEndLexemPosition(Lexem);
+  CorrectLexem := Trim(Lexem, StartLexemPosition, EndLexemPosition)
+END; { CorrectLexem }
+
+FUNCTION GetLexem(VAR Fin: TEXT): STRING;  
 VAR
   Ch: CHAR;
-  ReadingWord: STRING;
+  Lexem: STRING;
 BEGIN { GetWord }
-  ReadingWord := '';
+  Lexem := '';
   WHILE NOT EOLN(Fin) AND NOT EOF(Fin)
   DO
     BEGIN
       READ(Fin, Ch);        
       IF NOT(Ch IN AllowedCharSet)      
       THEN
-        BREAK;
-      ReadingWord := ReadingWord + UpCase(Ch)
+        BREAK;  
+      Lexem := Lexem + UpCase(Ch)
     END;
-  GetWord := ReadingWord  
-END; { GetWord }
+  GetLexem := CorrectLexem(Lexem)  
+END; { GetLexem }
 
 PROCEDURE IndexFile(VAR Fin: TEXT; VAR Root: Tree);
 VAR
@@ -90,7 +154,7 @@ BEGIN { IndexFile }
   DO
     BEGIN
       SkipGarbage(Fin);
-      RWord := GetWord(Fin);
+      RWord := GetLexem(Fin);
       IF (length(RWord) > 0)
       THEN
         Insert(Root, RWord)
