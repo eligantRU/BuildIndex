@@ -3,19 +3,36 @@ UNIT TreeUnit;
 INTERFACE
 
   TYPE 
-  Tree = ^NodeType;
-  NodeType = RECORD
-               Lexem: STRING;
-               LexemCounter: LONGINT;
-               LLink, RLink: Tree;
-             END;
+    Tree = ^NodeType; // NodePtr
+    NodeType = RECORD
+                 Lexem: STRING;
+                 LexemCounter: LONGINT;
+                 LLink, RLink: Tree
+               END;
              
-  PROCEDURE PrintTree(Ptr: Tree);
-  PROCEDURE Insert(VAR Ptr: Tree; Data: STRING);
+  PROCEDURE PrintLexems();
+  PROCEDURE InsertToTree(Data: STRING);
              
 IMPLEMENTATION
 
+  VAR
+    Root: Tree;
+  
   PROCEDURE Insert(VAR Ptr: Tree; Data: STRING);
+  
+  PROCEDURE FoundInsertPlace(VAR Ptr: Tree; Data: STRING);
+  BEGIN { FoundInsertPlace }
+    IF Ptr^.Lexem > Data
+    THEN
+      Insert(Ptr^.LLink, Data)
+    ELSE
+      IF Ptr^.Lexem < Data
+      THEN
+        Insert(Ptr^.RLink, Data)
+      ELSE                   
+        INC(Ptr^.LexemCounter)
+  END; { FoundInsertPlace }
+  
   BEGIN { Insert }
     IF Ptr = NIL
     THEN
@@ -24,19 +41,16 @@ IMPLEMENTATION
         Ptr^.LexemCounter := 1;
         Ptr^.Lexem := Data;
         Ptr^.LLink := NIL;
-        Ptr^.RLink := NIL;
+        Ptr^.RLink := NIL   
       END
     ELSE
-      IF Ptr^.RLexem > Data
-      THEN
-        Insert(Ptr^.LLink, Data)
-      ELSE
-        IF Ptr^.Lexem < Data
-        THEN
-          Insert(Ptr^.RLink, Data)
-        ELSE
-          INC(Ptr^.LexemCounter)
+      FoundInsertPlace(Ptr, Data)    
   END;  { Insert }
+  
+  PROCEDURE InsertToTree(Data: STRING);
+  BEGIN { InsertToTree }
+    Insert(Root, Data) 
+  END; { InsertToTree }
   
   PROCEDURE PrintTree(Ptr: Tree);
   BEGIN { PrintTree }
@@ -46,10 +60,15 @@ IMPLEMENTATION
         PrintTree(Ptr^.LLink);
         WRITELN(Ptr^.Lexem, ' ', Ptr^.LexemCounter);
         PrintTree(Ptr^.RLink)
-      END
+      END       
   END;  { PrintTree }
 
-BEGIN { TreeUnit }
+  PROCEDURE PrintLexems();
+  BEGIN { PrintLexems }
+    PrintTree(Root)
+  END; { PrintLexems }
 
+BEGIN { TreeUnit }
+  Root := NIL
 END. { TreeUnit }
 

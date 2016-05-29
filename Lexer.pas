@@ -1,4 +1,4 @@
-UNIT LexemUnit;
+UNIT LexerUnit;
 
 INTERFACE
 
@@ -7,7 +7,6 @@ INTERFACE
     AlphabetCharSet = ['a'..'z', 'A'..'Z', 'à'..'ÿ', 'À'..'ß', '¸', '¨'];
     AllowedCharSet = AlphabetCharSet + OrthographyCharSet; 
     
-  FUNCTION CorrectLexem(VAR Lexem: STRING): STRING;
   FUNCTION GetLexem(VAR Fin: TEXT): STRING;
   PROCEDURE SkipGarbage(VAR Fin: TEXT);  
   
@@ -15,7 +14,7 @@ IMPLEMENTATION
 
   FUNCTION CorrectLexem(VAR Lexem: STRING): STRING;
   VAR
-  StartLexemPosition, EndLexemPosition: INTEGER;
+    StartLexemPosition, EndLexemPosition: INTEGER;
 
   FUNCTION GetStartLexemPosition(Lexem: STRING): INTEGER;
   VAR
@@ -81,13 +80,10 @@ IMPLEMENTATION
     Lexem: STRING;
   BEGIN { GetLexem }
     Lexem := '';
-    WHILE NOT EOLN(Fin) AND NOT EOF(Fin)
+    WHILE NOT EOLN(Fin) AND NOT EOF(Fin) AND (Fin^ IN AllowedCharSet)
     DO
       BEGIN
-        READ(Fin, Ch);        
-        IF NOT(Ch IN AllowedCharSet)      
-        THEN
-          BREAK;  
+        READ(Fin, Ch);  
         Lexem := Lexem + UpCase(Ch)
       END;
     GetLexem := CorrectLexem(Lexem)  
@@ -100,17 +96,11 @@ IMPLEMENTATION
     IF EOLN(Fin)
     THEN
       READLN(Fin);
-    WHILE NOT EOLN(Fin) AND NOT EOF(Fin)
+    WHILE NOT EOLN(Fin) AND NOT EOF(Fin) AND NOT(Fin^ IN AllowedCharSet)
     DO
-      BEGIN
-        IF NOT(Fin^ IN AllowedCharSet)
-        THEN
-          READ(Fin, Ch)
-        ELSE
-          BREAK
-      END  
-  END; { SkipGarbage }
+      READ(Fin, Ch)
+  END; { SkipGarbage 
   
-BEGIN { LexemUnit }
-
-END. { LexemUnit }
+BEGIN { LexerUnit }
+  
+END. { LexerUnit }

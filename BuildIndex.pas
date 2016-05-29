@@ -1,27 +1,24 @@
 PROGRAM BuildIndex(INPUT, OUTPUT);  
 USES 
-  LexemUnit, TreeUnit;           
-VAR
-  Root: Tree;
-
-PROCEDURE IndexFile(VAR Fin: TEXT; VAR Root: Tree);
+  LexerUnit, TreeUnit;   
+  
+PROCEDURE IndexFile(VAR Fin: TEXT);
 VAR
   Lexem: STRING;
 BEGIN { IndexFile }
-  Root := NIL;
   WHILE NOT EOF(Fin)
   DO
-    BEGIN
-      LexemUnit.SkipGarbage(Fin);
-      Lexem := LexemUnit.GetLexem(Fin);
+    BEGIN             
+      LexerUnit.SkipGarbage(Fin);   
+      Lexem := LexerUnit.GetLexem(Fin);
       IF (LENGTH(Lexem) > 0)
       THEN
-        TreeUnit.Insert(Root, Lexem)
-    END
+        TreeUnit.InsertToTree(Lexem)
+    END   
 END; { IndexFile }
 
 BEGIN { BuildIndex }
-  IndexFile(INPUT, Root);
-  TreeUnit.PrintTree(Root)
+  IndexFile(INPUT);
+  TreeUnit.PrintLexems()
 END. { BuildIndex }
 
