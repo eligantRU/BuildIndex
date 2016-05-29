@@ -11,14 +11,12 @@ BEGIN { IndexFile }
     BEGIN             
       LexerUnit.SkipGarbage(Fin);   
       Lexem := LexerUnit.GetLexem(Fin);
-      IF (LENGTH(Lexem) > 0)
-      THEN
-        TreeUnit.InsertToTree(Lexem)
+      TreeUnit.Insert(Lexem)
     END   
 END; { IndexFile }
 
 BEGIN { BuildIndex }
   IndexFile(INPUT);
-  TreeUnit.PrintLexems()
+  TreeUnit.PrintLexems(OUTPUT)
 END. { BuildIndex }
 

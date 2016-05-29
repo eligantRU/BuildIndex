@@ -3,69 +3,74 @@ UNIT TreeUnit;
 INTERFACE
 
   TYPE 
-    Tree = ^NodeType; // NodePtr
+    NodePtr = ^NodeType;
     NodeType = RECORD
                  Lexem: STRING;
                  LexemCounter: LONGINT;
-                 LLink, RLink: Tree
+                 LLink, RLink: NodePtr
                END;
              
-  PROCEDURE PrintLexems();
-  PROCEDURE InsertToTree(Data: STRING);
+  PROCEDURE PrintLexems(VAR FOut: TEXT);
+  PROCEDURE Insert(Lexem: STRING);
              
 IMPLEMENTATION
 
   VAR
-    Root: Tree;
+    Root: NodePtr;
   
-  PROCEDURE Insert(VAR Ptr: Tree; Data: STRING);
+  PROCEDURE InsertToTree(VAR Ptr: NodePtr; Data: STRING);
   
-  PROCEDURE FoundInsertPlace(VAR Ptr: Tree; Data: STRING);
+  PROCEDURE FoundInsertionPlace(VAR Ptr: NodePtr; Data: STRING);
   BEGIN { FoundInsertPlace }
     IF Ptr^.Lexem > Data
     THEN
-      Insert(Ptr^.LLink, Data)
+      InsertToTree(Ptr^.LLink, Data)
     ELSE
       IF Ptr^.Lexem < Data
       THEN
-        Insert(Ptr^.RLink, Data)
+        InsertToTree(Ptr^.RLink, Data)
       ELSE                   
         INC(Ptr^.LexemCounter)
   END; { FoundInsertPlace }
   
-  BEGIN { Insert }
+  PROCEDURE InitNode(VAR Ptr: NodePtr);
+  BEGIN { InitNode }
+    NEW(Ptr);             
+    Ptr^.LexemCounter := 1;
+    Ptr^.Lexem := Data;
+    Ptr^.LLink := NIL;
+    Ptr^.RLink := NIL 
+  END; { InitNode }
+  
+  BEGIN { InsertToTree }
     IF Ptr = NIL
     THEN
-      BEGIN
-        NEW(Ptr);             
-        Ptr^.LexemCounter := 1;
-        Ptr^.Lexem := Data;
-        Ptr^.LLink := NIL;
-        Ptr^.RLink := NIL   
-      END
+      InitNode(Ptr)
     ELSE
-      FoundInsertPlace(Ptr, Data)    
-  END;  { Insert }
+      FoundInsertionPlace(Ptr, Data)    
+  END;  { InsertToTree }
   
-  PROCEDURE InsertToTree(Data: STRING);
+  PROCEDURE Insert(Lexem: STRING);
   BEGIN { InsertToTree }
-    Insert(Root, Data) 
+    IF (LENGTH(Lexem) > 0)
+    THEN
+      InsertToTree(Root, Lexem) 
   END; { InsertToTree }
   
-  PROCEDURE PrintTree(Ptr: Tree);
+  PROCEDURE PrintTree(VAR FOut: TEXT; Ptr: NodePtr);
   BEGIN { PrintTree }
     IF Ptr <> NIL
     THEN
       BEGIN
-        PrintTree(Ptr^.LLink);
-        WRITELN(Ptr^.Lexem, ' ', Ptr^.LexemCounter);
-        PrintTree(Ptr^.RLink)
+        PrintTree(FOut, Ptr^.LLink);
+        WRITELN(FOut, Ptr^.Lexem, ' ', Ptr^.LexemCounter);
+        PrintTree(FOut, Ptr^.RLink)
       END       
   END;  { PrintTree }
 
-  PROCEDURE PrintLexems();
+  PROCEDURE PrintLexems(VAR FOut: TEXT);
   BEGIN { PrintLexems }
-    PrintTree(Root)
+    PrintTree(FOut, Root)
   END; { PrintLexems }
 
 BEGIN { TreeUnit }
