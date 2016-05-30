@@ -20,7 +20,7 @@ IMPLEMENTATION
   
   PROCEDURE InsertToTree(VAR Ptr: NodePtr; Data: STRING);
   
-  PROCEDURE FoundInsertionPlace(VAR Ptr: NodePtr; Data: STRING);
+  PROCEDURE FoundPlaceToInsert(VAR Ptr: NodePtr; Data: STRING);
   BEGIN { FoundInsertPlace }
     IF Ptr^.Lexem > Data
     THEN
@@ -47,14 +47,12 @@ IMPLEMENTATION
     THEN
       InitNode(Ptr)
     ELSE
-      FoundInsertionPlace(Ptr, Data)    
+      FoundPlaceToInsert(Ptr, Data)    
   END;  { InsertToTree }
   
   PROCEDURE Insert(Lexem: STRING);
   BEGIN { InsertToTree }
-    IF (LENGTH(Lexem) > 0)
-    THEN
-      InsertToTree(Root, Lexem) 
+    InsertToTree(Root, Lexem) 
   END; { InsertToTree }
   
   PROCEDURE PrintTree(VAR FOut: TEXT; Ptr: NodePtr);

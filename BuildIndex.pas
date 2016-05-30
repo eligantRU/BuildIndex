@@ -9,10 +9,14 @@ BEGIN { IndexFile }
   WHILE NOT EOF(Fin)
   DO
     BEGIN             
-      LexerUnit.SkipGarbage(Fin);   
       Lexem := LexerUnit.GetLexem(Fin);
-      TreeUnit.Insert(Lexem)
-    END   
+      IF (LENGTH(Lexem) > 0)
+      THEN
+        TreeUnit.Insert(Lexem)
+    END
+  {WHILE LexerUnit.Read(Lexem)
+  DO
+    Insert(Lexem);  }
 END; { IndexFile }
 
 BEGIN { BuildIndex }

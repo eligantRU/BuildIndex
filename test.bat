@@ -15,8 +15,8 @@ DEL tests\output2.idx
 ECHO Test DashesAndOpostrophesInsideLexems succeed  
 
 REM Start test 3 
-buildindex.exe < tests\testDashesAndOpostrophesOnLexemEdges.txt > tests\output3.idx 
-C:\Windows\System32\FC /B tests\output3.idx tests\correctDashesAndOpostrophesOnLexemEdges.idx 
+buildindex.exe < tests\testDashesAndOpostrophesOnLexemSides.txt > tests\output3.idx 
+C:\Windows\System32\FC /B tests\output3.idx tests\correctDashesAndOpostrophesOnLexemSides.idx 
 IF ERRORLEVEL 1 GOTO err 
 DEL tests\output3.idx 
 ECHO Test DashesAndOpostrophesOnLexemEdges succeed

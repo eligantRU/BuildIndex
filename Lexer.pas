@@ -8,7 +8,6 @@ INTERFACE
     AllowedCharSet = AlphabetCharSet + OrthographyCharSet; 
     
   FUNCTION GetLexem(VAR Fin: TEXT): STRING;
-  PROCEDURE SkipGarbage(VAR Fin: TEXT);  
   
 IMPLEMENTATION
 
@@ -74,21 +73,6 @@ IMPLEMENTATION
     CorrectLexem := Trim(Lexem, StartLexemPosition, EndLexemPosition)
   END; { CorrectLexem }
   
-  FUNCTION GetLexem(VAR Fin: TEXT): STRING;  
-  VAR
-    Ch: CHAR;
-    Lexem: STRING;
-  BEGIN { GetLexem }
-    Lexem := '';
-    WHILE NOT EOLN(Fin) AND NOT EOF(Fin) AND (Fin^ IN AllowedCharSet)
-    DO
-      BEGIN
-        READ(Fin, Ch);  
-        Lexem := Lexem + UpCase(Ch)
-      END;
-    GetLexem := CorrectLexem(Lexem)  
-  END; { GetLexem }
-  
   PROCEDURE SkipGarbage(VAR Fin: TEXT);
   VAR
     Ch: CHAR;
@@ -99,7 +83,24 @@ IMPLEMENTATION
     WHILE NOT EOLN(Fin) AND NOT EOF(Fin) AND NOT(Fin^ IN AllowedCharSet)
     DO
       READ(Fin, Ch)
-  END; { SkipGarbage 
+  END; { SkipGarbage } 
+  
+  FUNCTION GetLexem(VAR Fin: TEXT): STRING;  
+  VAR
+    Ch: CHAR;
+    Lexem: STRING;
+  BEGIN { GetLexem }
+    Lexem := '';    
+    
+    SkipGarbage(FIn);
+    WHILE NOT EOLN(Fin) AND NOT EOF(Fin) AND (Fin^ IN AllowedCharSet)
+    DO
+      BEGIN
+        READ(Fin, Ch);  
+        Lexem := Lexem + UpCase(Ch)
+      END;
+    GetLexem := CorrectLexem(Lexem)  
+  END; { GetLexem }
   
 BEGIN { LexerUnit }
   
