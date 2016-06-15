@@ -1,5 +1,5 @@
 PROGRAM BuildIndex(INPUT, OUTPUT);  
-USES 
+USES                             
   LexerUnit, TreeUnit;   
   
 PROCEDURE IndexFile(VAR Fin: TEXT);
@@ -14,13 +14,10 @@ BEGIN { IndexFile }
       THEN
         TreeUnit.Insert(Lexem)
     END
-  {WHILE LexerUnit.Read(Lexem)
-  DO
-    Insert(Lexem);  }
 END; { IndexFile }
 
 BEGIN { BuildIndex }
   IndexFile(INPUT);
-  TreeUnit.PrintLexems(OUTPUT)
+  TreeUnit.PrintLexems(OUTPUT); 
 END. { BuildIndex }
 

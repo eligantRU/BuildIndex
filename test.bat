@@ -42,6 +42,13 @@ IF ERRORLEVEL 1 GOTO err
 DEL tests\output6.idx 
 ECHO Test SingleDashesAndOpostrophes succeed 
 
+REM Start test 7 
+buildindex.exe < tests\testMerging.txt > tests\output7.idx 
+C:\Windows\System32\FC /B tests\output7.idx tests\correctMerging.idx 
+IF ERRORLEVEL 1 GOTO err 
+DEL tests\output7.idx 
+ECHO Test Merging succeed 
+
 ECHO ALL TESTS WERE SUCCEED
 
 EXIT
