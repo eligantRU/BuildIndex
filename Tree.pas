@@ -57,11 +57,35 @@ IMPLEMENTATION
       END;          
   END;  { PrintTree }
   
-  PROCEDURE Free(VAR Ptr: NodePtr); // TODO: Tree need be removed!
+  PROCEDURE FreeTree(VAR Ptr: NodePtr);
+  
+  PROCEDURE Free(VAR Ptr: NodePtr);
   BEGIN { Free }
-    DISPOSE(Ptr^.LLink);
-    Ptr^.LLink := NIL
-  END; { Free } 
+    IF Ptr <> NIL
+    THEN
+      BEGIN
+        Free(Ptr^.LLink);
+        IF Ptr^.LLink <> NIL
+        THEN
+          BEGIN
+            DISPOSE(Ptr^.LLink);
+            Ptr^.LLink := NIL
+          END;    
+        
+        Free(Ptr^.RLink);
+        IF Ptr^.RLink <> NIL
+        THEN
+          BEGIN
+            DISPOSE(Ptr^.RLink);
+            Ptr^.RLink := NIL
+          END;    
+      END;      
+  END; { Free }
+  
+  BEGIN { FreeTree }
+    Free(Ptr);
+    Free(Root);
+  END; { FreeTree }
 
   PROCEDURE MergeTreeToFile(VAR Ptr: NodePtr);
   
@@ -136,6 +160,7 @@ IMPLEMENTATION
   
   BEGIN { MergeTreeToFile }    
     PrintTree(TempF1, Root);
+    FreeTree(Root);
     Merge(TempF2, TempF3, TempF1);
     CopyFile(TempF2, TempF3)
   END; { MergeTreeToFile } 
