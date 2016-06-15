@@ -7,8 +7,7 @@ INTERFACE
     NodeType = RECORD
                  Lexem: STRING;
                  LexemCounter: LONGINT;
-                 LLink, RLink: NodePtr;
-                 ParentPtr: NodePtr
+                 LLink, RLink: NodePtr
                END;
              
   PROCEDURE PrintLexems(VAR FOut: TEXT);
@@ -165,42 +164,37 @@ IMPLEMENTATION
     CopyFile(TempF2, TempF3)
   END; { MergeTreeToFile } 
   
-  PROCEDURE InsertToTree(VAR Ptr: NodePtr; Data: STRING; ParentPtr: NodePtr);
+  PROCEDURE InsertToTree(VAR Ptr: NodePtr; Data: STRING);
     
-  PROCEDURE FoundPlaceToInsert(VAR Ptr: NodePtr; Data: STRING; ParentPtr: NodePtr);
+  PROCEDURE FoundPlaceToInsert(VAR Ptr: NodePtr; Data: STRING);
   BEGIN { FoundInsertPlace }
     IF Ptr^.Lexem > Data
     THEN              
-      InsertToTree(Ptr^.LLink, Data, ParentPtr)
+      InsertToTree(Ptr^.LLink, Data)
     ELSE
       IF Ptr^.Lexem < Data
       THEN
-        InsertToTree(Ptr^.RLink, Data, ParentPtr)
+        InsertToTree(Ptr^.RLink, Data)
       ELSE                   
         INC(Ptr^.LexemCounter)
   END; { FoundInsertPlace }
   
-  PROCEDURE InitNode(VAR Ptr: NodePtr; ParentPtr: NodePtr);
+  PROCEDURE InitNode(VAR Ptr: NodePtr);
   BEGIN { InitNode }
     NEW(Ptr);             
     Ptr^.LexemCounter := 1;
     Ptr^.Lexem := Data;
     Ptr^.LLink := NIL;
     Ptr^.RLink := NIL;
-    Ptr^.ParentPtr := ParentPtr;
     INC(TreeSize)        
   END; { InitNode }
   
   BEGIN { InsertToTree }
     IF Ptr = NIL
     THEN
-      IF Root = NIL
-      THEN      
-        InitNode(Ptr, NIL)
-      ELSE
-        InitNode(Ptr, ParentPtr)  
+      InitNode(Ptr) 
     ELSE
-      FoundPlaceToInsert(Ptr, Data, ParentPtr);
+      FoundPlaceToInsert(Ptr, Data);
       
     IF TreeSize = MaxTreeSize
     THEN
@@ -214,7 +208,7 @@ IMPLEMENTATION
   
   PROCEDURE Insert(Lexem: STRING);
   BEGIN { InsertToTree }
-    InsertToTree(Root, Lexem, Root) 
+    InsertToTree(Root, Lexem) 
   END; { InsertToTree }
 
   PROCEDURE PrintLexems(VAR FOut: TEXT);
