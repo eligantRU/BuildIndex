@@ -83,7 +83,8 @@ IMPLEMENTATION
   
   BEGIN { FreeTree }
     Free(Ptr);
-    Free(Root);
+    DISPOSE(Root);
+    Root := NIL;
   END; { FreeTree }
 
   PROCEDURE MergeTreeToFile(VAR Ptr: NodePtr);
@@ -200,8 +201,6 @@ IMPLEMENTATION
     THEN
       BEGIN
         MergeTreeToFile(Root);
-        DISPOSE(Root);
-        Root := NIL;
         TreeSize := 0;
       END    
   END;  { InsertToTree }
