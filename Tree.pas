@@ -89,11 +89,62 @@ IMPLEMENTATION
 
   PROCEDURE MergeTreeToFile(VAR Ptr: NodePtr);
   
-  PROCEDURE Merge(VAR F1, F2, F3: TEXT);               
+    PROCEDURE Merge(VAR F1, F2, F3: TEXT); 
     VAR
       Lexem2, Lexem3: STRING;
       Counter2, Counter3: LONGINT;
       Have2, Have3: BOOLEAN;
+    
+      PROCEDURE TryReadCouple(VAR Have: BOOLEAN; VAR F: TEXT; VAR Lexem: STRING; VAR Counter: LONGINT);
+      BEGIN { TryReadCouple }
+        IF (NOT Have) AND (NOT EOLN(F)) AND (NOT EOF(F))
+          THEN
+            BEGIN           
+              Lexem := LexerUnit.GetLexem(F);
+              READLN(F, Counter);        
+              Have := TRUE
+            END
+      END; { TryReadCouple } 
+      
+      PROCEDURE Sorting(VAR FOut: TEXT; Lexem2, Lexem3: STRING; Counter2, Counter3: LONGINT; VAR Have2, Have3: BOOLEAN);
+      BEGIN { Sorting }
+        IF Lexem2 = Lexem3
+        THEN
+          BEGIN               
+            WRITELN(FOut, Lexem2, ' ', Counter2 + Counter3);
+            Have2 := FALSE;
+            Have3 := FALSE
+          END
+        ELSE  
+          IF Lexem2 < Lexem3
+          THEN
+            BEGIN               
+              WRITELN(FOut, Lexem2, ' ', Counter2);
+              Have2 := FALSE
+            END
+          ELSE
+            BEGIN             
+              WRITELN(FOut, Lexem3, ' ', Counter3);
+              Have3 := FALSE
+            END
+      END; { Sorting }
+      
+      PROCEDURE MergeRemains(VAR Fout: TEXT; Lexem2, Lexem3: STRING; Counter2, Counter3: LONGINT; VAR Have2, Have3: BOOLEAN);
+      BEGIN { MergeRemains }  
+        IF Have2
+        THEN
+          BEGIN      
+            WRITELN(FOut, Lexem2, ' ', Counter2);
+            Have2 := FALSE
+          END;
+        IF Have3
+        THEN
+          BEGIN           
+            WRITELN(FOut, Lexem3, ' ', Counter3);
+            Have3 := FALSE
+          END
+      END; { MergeRemains }  
+      
     BEGIN { Merge }
       REWRITE(F1);
       RESET(F2);
@@ -103,56 +154,13 @@ IMPLEMENTATION
       WHILE (NOT EOLN(F2)) OR (NOT EOLN(F3)) OR (Have2 = TRUE) OR (Have3 = TRUE)
       DO
         BEGIN   
-          IF (NOT Have2) AND (NOT EOLN(F2)) AND (NOT EOF(F2))
-          THEN
-            BEGIN           
-              Lexem2 := LexerUnit.GetLexem(F2);
-              READLN(F2, Counter2);        
-              Have2 := TRUE
-            END;
-          IF (NOT Have3) AND (NOT EOLN(F3)) AND (NOT EOF(F3))
-          THEN
-            BEGIN        
-              Lexem3 := LexerUnit.GetLexem(F3);
-              READLN(F3, Counter3); 
-              Have3 := TRUE
-            END;           
+          TryReadCouple(Have2, F2, Lexem2, Counter2);  
+          TryReadCouple(Have3, F3, Lexem3, Counter3);  
           IF Have2 AND Have3
           THEN
-            IF Lexem2 = Lexem3
-            THEN
-              BEGIN               
-                WRITELN(F1, Lexem2, ' ', Counter2 + Counter3);
-                Have2 := FALSE;
-                Have3 := FALSE
-              END
-            ELSE  
-              IF Lexem2 < Lexem3
-              THEN
-                BEGIN               
-                  WRITELN(F1, Lexem2, ' ', Counter2);
-                  Have2 := FALSE
-                END
-              ELSE
-                BEGIN             
-                  WRITELN(F1, Lexem3, ' ', Counter3);
-                  Have3 := FALSE
-                END
+            Sorting(F1, Lexem2, Lexem3, Counter2, Counter3, Have2, Have3)
           ELSE
-            BEGIN   
-              IF Have2
-              THEN
-                BEGIN      
-                  WRITELN(F1, Lexem2, ' ', Counter2);
-                  Have2 := FALSE
-                END;
-              IF Have3
-              THEN
-                BEGIN           
-                  WRITELN(F1, Lexem3, ' ', Counter3);
-                  Have3 := FALSE
-                END    
-            END          
+            MergeRemains(F1, Lexem2, Lexem3, Counter2, Counter3, Have2, Have3)       
         END;
       REWRITE(F2);
       REWRITE(F3) 
