@@ -18,6 +18,6 @@ END; { IndexFile }
 
 BEGIN { BuildIndex }
   IndexFile(INPUT);
-  TreeUnit.PrintLexems(OUTPUT); 
+  TreeUnit.PrintLexems(OUTPUT) 
 END. { BuildIndex }
 
